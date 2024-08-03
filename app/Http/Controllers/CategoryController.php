@@ -19,29 +19,19 @@ public function create()
 }
 public function store(Request $request)
 {
-    $request->validate([
-       'name' => 'Required[max:255] string',
-       'description' => 'Required[ max:255] string',
-       'image'=>'nullable|mimes:png,jpeg,jpg',
-        'is_active' => 'sometime'
-    ]);
+    $category = new category();
 
-    if($request->has('image')){
-        $file=$request->file('image');
-        $extension =$file->getClientOriginalExtension().'.'.'$extension';
-        $path ='uploads/category/';
-        $file->move('$path' , '$filename');
+    $image = $request->image;
+    $imagename = time().'.'.$image->getClientOriginalExtension();
+    $request->image->move('categoryimages' , $imagename);
+    $category->image = $imagename;
 
-        
-    }
-    category::create([
-        'name'=>$request->name,
-        'description'=>$request->description,
-        'image'=> '$path.$filename',
-        'is_active'=>$request->is_active ==true ? 1:0,
+    $category->name = $request->name;
+    $category->description = $request->description;
+    $category->status = $request->has('is_active')?'active':'inactive';
 
-    ]);
-    return redirect('categories/create')->with('status','category created');
+    $category->save();
+    return redirect()->back();
 }
 public function edit(int $id)
 {
